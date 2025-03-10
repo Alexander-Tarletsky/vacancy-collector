@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h2>{{ channel.name }}</h2>
+    <div class="btn-group">
+        <a href="/channels/{{ channel.id }}/edit" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <form action="/channels/{{ channel.id }}" method="post">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Channel Details</h5>
+        <dl class="row">
+            <dt class="col-sm-3">Telegram ID</dt>
+            <dd class="col-sm-9">{{ channel.telegram_id }}</dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-{% if channel.is_active %}success{% else %}secondary{% endif %}">
+                    {% if channel.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </dd>
+
+            <dt class="col-sm-3">Created At</dt>
+            <dd class="col-sm-9">{{ channel.created_at }}</dd>
+        </dl>
+    </div>
+</div>
+
+<h4 class="mt-4">Associated Vacancies</h4>
+<div class="list-group mt-3">
+    {% for vacancy in channel.vacancies %}
+    <a href="/vacancies/{{ vacancy.id }}" class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <p class="mb-1">{{ vacancy.content|truncate(100) }}</p>
+                <small class="text-muted">{{ vacancy.created_at }}</small>
+            </div>
+            <span class="badge bg-{% if vacancy.is_viewed %}success{% else %}warning{% endif %}">
+                {% if vacancy.is_viewed %}Viewed{% else %}New{% endif %}
+            </span>
+        </div>
+    </a>
+    {% else %}
+    <div class="alert alert-info">No vacancies found for this channel.</div>
+    {% endfor %}
+</div>
+{% endblock %}

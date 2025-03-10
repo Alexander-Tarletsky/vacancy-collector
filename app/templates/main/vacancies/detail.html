@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <div>
+        <h2>Vacancy Details</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/vacancies">Vacancies</a></li>
+                <li class="breadcrumb-item active" aria-current="page">#{{ vacancy.id|truncate(8) }}</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="btn-group">
+        <button class="btn btn-outline-secondary" onclick="toggleVacancyStatus()">
+            <i class="bi bi-{% if vacancy.is_viewed %}check2-all{% else %}envelope{% endif %}"></i>
+            Mark as {% if vacancy.is_viewed %}Unread{% else %}Read{% endif %}
+        </button>
+        <form action="/vacancies/{{ vacancy.id }}" method="post">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h5 class="card-title">{{ vacancy.channel.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    <span class="badge bg-{% if vacancy.is_viewed %}success{% else %}warning{% endif %}">
+                        {% if vacancy.is_viewed %}Viewed{% else %}New{% endif %}
+                    </span>
+                </h6>
+            </div>
+            <small class="text-muted">{{ vacancy.created_at|datetimeformat }}</small>
+        </div>
+
+        <div class="vacancy-content mb-4">
+            {{ vacancy.content|linebreaks }}
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-3">Channel ID</dt>
+            <dd class="col-sm-9">{{ vacancy.channel.telegram_id }}</dd>
+
+            <dt class="col-sm-3">Message ID</dt>
+            <dd class="col-sm-9">{{ vacancy.message_id }}</dd>
+
+            <dt class="col-sm-3">Collection Date</dt>
+            <dd class="col-sm-9">{{ vacancy.created_at|datetimeformat }}</dd>
+        </dl>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    async function toggleVacancyStatus() {
+        try {
+            const response = await fetch('/vacancies/{{ vacancy.id }}', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    is_viewed: {% if vacancy.is_viewed %}false{% else %}true{% endif %}
+                })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Failed to update vacancy status');
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

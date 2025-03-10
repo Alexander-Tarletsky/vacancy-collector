@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Welcome to Vacancy Collector</h2>
+
+                <!-- Channels Summary -->
+                <div class="row mb-5">
+                    <div class="col-md-6">
+                        <div class="card text-bg-primary">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="bi bi-collection"></i> Total Channels
+                                </h5>
+                                <p class="display-4">{{ channels_count }}</p>
+                                <a href="/channels" class="text-white">Manage Channels →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-bg-success">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="bi bi-activity"></i> Active Channels
+                                </h5>
+                                <p class="display-4">{{ active_channels_count }}</p>
+                                <a href="/channels" class="text-white">View Details →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Vacancies -->
+                <h4 class="mb-3"><i class="bi bi-card-list"></i> Recent Vacancies</h4>
+                <div class="list-group">
+                    {% for vacancy in recent_vacancies %}
+                    <a href="/vacancies/{{ vacancy.id }}"
+                       class="list-group-item list-group-item-action {% if not vacancy.is_viewed %}unviewed{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ vacancy.channel.name }}</h5>
+                                <p class="mb-1 text-muted">{{ vacancy.content|truncate(100) }}</p>
+                            </div>
+                            <small class="text-muted">{{ vacancy.created_at|datetimeformat }}</small>
+                        </div>
+                    </a>
+                    {% else %}
+                    <div class="alert alert-info">No recent vacancies found</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="/channels/new" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add New Channel
+                    </a>
+                    <a href="/vacancies" class="btn btn-outline-secondary">
+                        <i class="bi bi-search"></i> Browse Vacancies
+                    </a>
+                    <a href="/channels" class="btn btn-outline-secondary">
+                        <i class="bi bi-gear"></i> Manage Channels
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

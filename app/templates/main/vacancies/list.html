@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h2>Vacancies</h2>
+    <div class="btn-group">
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+            <i class="bi bi-funnel"></i> Filters
+        </button>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filter Vacancies</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm" method="get">
+                    <div class="mb-3">
+                        <label class="form-label">Channel</label>
+                        <select class="form-select" name="channel_id">
+                            <option value="">All Channels</option>
+                            {% for channel in all_channels %}
+                            <option value="{{ channel.id }}" {% if channel.id == selected_channel %}selected{% endif %}>
+                                {{ channel.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status">
+                            <option value="all">All</option>
+                            <option value="unviewed">Unviewed</option>
+                            <option value="viewed">Viewed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="filterForm" class="btn btn-primary">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="list-group">
+    {% for vacancy in vacancies %}
+    <a href="/vacancies/{{ vacancy.id }}" class="list-group-item list-group-item-action {% if not vacancy.is_viewed %}unviewed{% endif %}">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">{{ vacancy.channel.name }}</h5>
+                <p class="mb-1">{{ vacancy.content|truncate(150) }}</p>
+                <small class="text-muted">{{ vacancy.created_at }}</small>
+            </div>
+            <span class="badge bg-{% if vacancy.is_viewed %}success{% else %}warning{% endif %}">
+                {% if vacancy.is_viewed %}Viewed{% else %}New{% endif %}
+            </span>
+        </div>
+    </a>
+    {% else %}
+    <div class="alert alert-info">No vacancies found matching your criteria.</div>
+    {% endfor %}
+</div>
+{% endblock %}
