@@ -8,20 +8,22 @@ from schemas.user import UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[UserORM, UserCreate, UserUpdate]):
-    async def get_by_email(self, db: AsyncSession, email: str) -> UserORM | None:
+    async def get_by_email(self, db_session: AsyncSession, email: str) -> UserORM | None:
         """
         Retrieve a user record by email.
 
         Args:
-            db (AsyncSession): The database session.
+            db_session (AsyncSession): The database session.
             email (str): The email address of the user to be retrieved.
         """
-        # result = await db.execute(select(UserORM).filter(self.model.email == email))
-        # return result.scalars().first()
         stmt = select(UserORM).options(selectinload(UserORM.channels)).where(UserORM.email == email)
 
-        result = await db.scalars(stmt)
+        result = await db_session.scalars(stmt)
         return result.first()
+
+    # Another variant
+    # result = await db_session.execute(select(UserORM).filter(self.model.email == email))  # NOQA
+    # return result.scalars().first()  # NOQA
 
 
 user_crud = CRUDUser(UserORM)

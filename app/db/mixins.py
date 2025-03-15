@@ -14,7 +14,7 @@ class UserRelationMixin:
     _user_back_populates: str | None = None
 
     @declared_attr
-    def user_id(cls) -> Mapped[UUID]:
+    def user_id(cls) -> Mapped[UUID]:  # NOQA: N805
         return mapped_column(
             ForeignKey("users.id", ondelete="CASCADE"),
             unique=cls._user_id_unique,
@@ -22,9 +22,8 @@ class UserRelationMixin:
         )
 
     @declared_attr
-    def user(cls) -> Mapped["UserORM"]:
+    def user(cls) -> Mapped["UserORM"]:  # NOQA: N805
         return relationship(
             "UserORM",
             back_populates=cls._user_back_populates,
-            cascade="all, delete-orphan"
         )

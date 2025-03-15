@@ -18,7 +18,7 @@ router = APIRouter()
 @router.get("/{channel_id}", response_model=Response)
 async def get_user_channel(
         channel_id: UUID,
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         channel_service: Annotated[ChannelService, Depends()],
 ) -> Response:
@@ -27,11 +27,11 @@ async def get_user_channel(
 
     Args:
         channel_id (UUID): The ID of the channel to retrieve.
-        db (AsyncSession): The database session.
+        db_session (AsyncSession): The database session.
         user (UserORM): The current user.
         channel_service (ChannelService): The channel service.
     """
-    channel = await channel_service.get_by_id(db, user, channel_id)
+    channel = await channel_service.get_by_id(db_session, user, channel_id)
 
     return Response(
         status_code=status.HTTP_200_OK,
@@ -42,7 +42,7 @@ async def get_user_channel(
 
 @router.get("", response_model=Response)
 async def get_user_channels(
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         channel_service: Annotated[ChannelService, Depends()],
 ) -> Response:
@@ -50,20 +50,20 @@ async def get_user_channels(
     Retrieve all channels associated with the current user.
 
     Args:
-        db (AsyncSession): The database session.
+        db_session (AsyncSession): The database session.
         user (UserORM): The current user.
         channel_service (ChannelService): The channel service.
     """
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully fetched channels",
-        data=await channel_service.get_user_channels(db, user)
+        data=await channel_service.get_user_channels(db_session, user)
     )
 
 
 @router.post("", response_model=Response)
 async def create(
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         channel_service: Annotated[ChannelService, Depends()],
         *,
@@ -73,7 +73,7 @@ async def create(
     Create a new channel for the current user.
 
     Args:
-        db (AsyncSession): The database session.
+        db_session (AsyncSession): The database session.
         user (UserORM): The current user.
         channel_service (ChannelService): The channel service.
         channel_data (ChannelCreate): The channel data.
@@ -81,7 +81,7 @@ async def create(
     return Response(
         status_code=status.HTTP_201_CREATED,
         message="Successfully created channel",
-        data=await channel_service.create(db, user, channel_data)
+        data=await channel_service.create(db_session, user, channel_data)
     )
 
 
@@ -90,9 +90,9 @@ async def update_channel(
         channel_id: UUID,
         channel_data: ChannelUpdate,
         user: Annotated[UserORM, Depends(current_user)],
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         channel_service: Annotated[ChannelService, Depends()],
-):
+) -> Response:
     """
     Update a channel by ID.
 
@@ -100,13 +100,13 @@ async def update_channel(
         channel_id (UUID): The ID of the channel to update.
         channel_data (ChannelUpdate): The updated channel data.
         user (UserORM): The current user.
-        db (AsyncSession): The database session.
+        db_session (AsyncSession): The database session.
         channel_service (ChannelService): The channel service.
     """
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully updated channel",
-        data=await channel_service.update_user_channel(db, channel_id, user, channel_data)
+        data=await channel_service.update_user_channel(db_session, channel_id, user, channel_data)
     )
 
 
@@ -114,20 +114,20 @@ async def update_channel(
 async def delete_channel(
         channel_id: UUID,
         user: Annotated[UserORM, Depends(current_user)],
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         channel_service: Annotated[ChannelService, Depends()],
-):
+) -> Response:
     """
     Delete a channel by ID.
 
     Args:
         channel_id (UUID): The ID of the channel to delete.
         user (UserORM): The current user.
-        db (AsyncSession): The database session.
+        db_session (AsyncSession): The database session.
         channel_service (ChannelService): The channel service.
     """
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully deleted channel",
-        data=await channel_service.delete_user_channel(db, user, channel_id)
+        data=await channel_service.delete_user_channel(db_session, user, channel_id)
     )

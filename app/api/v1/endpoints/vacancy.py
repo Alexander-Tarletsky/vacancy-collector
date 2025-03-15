@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("", response_model=Response)
 async def get_user_vacancies(
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         vacancy_service: Annotated[VacancyService, Depends()],
 ) -> Response:
@@ -27,14 +27,14 @@ async def get_user_vacancies(
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully fetched vacancies",
-        data=await vacancy_service.get_user_vacancies(db, user)
+        data=await vacancy_service.get_user_vacancies(db_session, user)
     )
 
 
 @router.get("/channel/{channel_id}", response_model=Response)
 async def get_channel_vacancies(
         channel_id: UUID,
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         vacancy_service: Annotated[VacancyService, Depends()],
 ) -> Response:
@@ -44,21 +44,21 @@ async def get_channel_vacancies(
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully fetched vacancies",
-        data=await vacancy_service.get_channel_vacancies(db, user, channel_id)
+        data=await vacancy_service.get_channel_vacancies(db_session, user, channel_id)
     )
 
 
 @router.get("/{vacancy_id}", response_model=Response)
 async def get_vacancy(
         vacancy_id: UUID,
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         vacancy_service: Annotated[VacancyService, Depends()],
 ) -> Response:
     """
     Retrieve a specific vacancy by ID.
     """
-    vacancy = await vacancy_service.get_by_id(db, user, vacancy_id)
+    vacancy = await vacancy_service.get_by_id(db_session, user, vacancy_id)
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully fetched vacancy",
@@ -69,7 +69,7 @@ async def get_vacancy(
 @router.post("", response_model=Response)
 async def create_vacancy(
         vacancy_data: VacancyCreate,
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         vacancy_service: Annotated[VacancyService, Depends()],
 ) -> Response:
@@ -79,7 +79,7 @@ async def create_vacancy(
     return Response(
         status_code=status.HTTP_201_CREATED,
         message="Successfully created vacancy",
-        data=await vacancy_service.create(db, user, vacancy_data)
+        data=await vacancy_service.create(db_session, user, vacancy_data)
     )
 
 
@@ -87,7 +87,7 @@ async def create_vacancy(
 async def update_vacancy(
         vacancy_id: UUID,
         vacancy_data: VacancyUpdate,
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         vacancy_service: Annotated[VacancyService, Depends()],
 ) -> Response:
@@ -97,14 +97,14 @@ async def update_vacancy(
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully updated vacancy",
-        data=await vacancy_service.update_user_vacancy(db, user, vacancy_id, vacancy_data)
+        data=await vacancy_service.update_user_vacancy(db_session, user, vacancy_id, vacancy_data)
     )
 
 
 @router.delete("/{vacancy_id}", response_model=Response)
 async def delete_vacancy(
         vacancy_id: UUID,
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
         user: Annotated[UserORM, Depends(current_user)],
         vacancy_service: Annotated[VacancyService, Depends()],
 ) -> Response:
@@ -114,5 +114,5 @@ async def delete_vacancy(
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully deleted vacancy",
-        data=await vacancy_service.delete_user_vacancy(db, user, vacancy_id)
+        data=await vacancy_service.delete_user_vacancy(db_session, user, vacancy_id)
     )

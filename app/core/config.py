@@ -1,81 +1,139 @@
+import logging
 import pathlib
-from typing import List, Union
 
-from pydantic import AnyHttpUrl, EmailStr, field_validator
+from dotenv import load_dotenv
+from pydantic import AnyHttpUrl, EmailStr, field_validator, PostgresDsn
+from pydantic_core.core_schema import ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# https://github.com/pydantic/pydantic/issues/1368
+# https://docs.pydantic.dev/usage/settings/#dotenv-env-support
+load_dotenv()
+
+logger = logging.getLogger(__name__)
+
 # Project Directories
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+BASE_ROOT = pathlib.Path(__file__).resolve().parent.parent
+STATIC_ROOT = BASE_ROOT / "static"
+TEMPLATES_ROOT = BASE_ROOT / "templates"
 
 
 class Settings(BaseSettings):
     DEBUG: bool = False
+    PYTHONASYNCIODEBUG: bool = False
+
+    TEST_MODE: bool = False
+
+    ENVIRONMENT: str = "development"
+    IS_PRODUCTION: bool = False
+    IS_DEVELOPMENT: bool = True
+    IS_LOCAL: bool = False
+
+    LOG_LEVEL: str = "INFO"
+
+    @field_validator('ENVIRONMENT', mode='before')
+    def set_environment(cls, value: str) -> str:  # NOQA: N805
+        if value not in ("development", "production", "local"):
+            raise ValueError("Invalid environment")
+        return value
+
+    @field_validator('IS_PRODUCTION', mode='before')
+    def set_is_production(cls, value: bool, info: ValidationInfo) -> bool:  # NOQA: N805
+        return info.data.get('ENVIRONMENT') == "production"
+
+    @field_validator('IS_DEVELOPMENT', mode='before')
+    def set_is_development(cls, value: bool, info: ValidationInfo) -> bool:  # NOQA: N805
+        return info.data.get('ENVIRONMENT') == "development"
+
+    @field_validator('IS_LOCAL', mode='before')
+    def set_is_local(cls, value: bool, info: ValidationInfo) -> bool:  # NOQA: N805
+        return info.data.get('ENVIRONMENT') == "local"
+
     FIRST_SUPERUSER: EmailStr = "root@root.com"
     FIRST_SUPERUSER_PW: str = "strongpassword"
     SALT: str= "a91349ae8f7"
 
-    API_V1_STR: str = "/api/v1"
-    JWT_SECRET: str = "TEST_SECRET_KEY"
+    JWT_SECRET: str = "JWT_SECRET"  # NOQA: S105
     ALGORITHM: str = "HS256"
-
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 3
+
+    BASE_HOST: AnyHttpUrl = "http://localhost:8000"
+    API_V1_STR: str = "/api/v1"
 
     DB_HOST: str = "db"
     DB_PORT: int = 5432
-    DB_USER: str = "postgres"
-    DB_PASSWORD: str = "postgres"
+    DB_USER: str = "DB_USER"
+    DB_PASSWORD: str = "DB_PASSWORD"  # NOQA: S105
     DB_NAME: str = "vacancy_collector"
-    # POSTGRES_USER: str = "postgres"
-    # POSTGRES_PASSWORD: str = "postgres"
-    # POSTGRES_DB: str = "vacancy_collector"
+    TEST_DB_NAME_PREFIX: str = "test_"
+    DB_ECHO: bool | None = None
+    DATABASE_URI: PostgresDsn | str | None = None
 
-    @property
-    def DATABASE_URL_ASYNC(self) -> str:
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"  # NOQA
+    @field_validator('DATABASE_URI', mode='before')
+    def assemble_db_uri(cls, value: str | None, info: ValidationInfo) -> str:  # NOQA: N805
+        if isinstance(value, str):
+            # There is assumed that if you set the DB URL yourself, then this is your responsibility
+            logger.info(f"DATABASE_URI is: {value}")
+            return value
 
-    TEST_DATABASE_URI: str | None = "postgresql+asyncpg://postgres:postgres@db:5432/test_db"
+        host = info.data.get('IS_LOCAL') and "127.0.0.1" or info.data.get('DB_HOST')
+
+        if info.data.get('TEST_MODE'):
+            if not info.data.get('TEST_DB_NAME_PREFIX'):
+                raise ValueError("TEST_DB_NAME_PREFIX is not set")
+            db_name = f"{info.data.get('TEST_DB_NAME_PREFIX')}{info.data.get('DB_NAME')}"
+        else:
+            db_name = info.data.get('DB_NAME')
+
+        value = PostgresDsn.build(
+            scheme='postgresql+asyncpg',
+            username=info.data.get('DB_USER'),
+            password=info.data.get('DB_PASSWORD'),
+            host=host,
+            port=info.data.get('DB_PORT'),
+            path=db_name,
+        ).unicode_string()
+        logger.info(f"DATABASE_URI is assembled: {value}")
+
+        return value
+
+    @field_validator('DB_ECHO', mode='before')
+    def assemble_db_echo(cls, value: str | int | bool | None, info: ValidationInfo) -> bool:  # NOQA: N805
+        if isinstance(value, str | int | bool):
+            return bool(value)
+
+        if info.data.get('DEBUG') or info.data.get('TEST_MODE'):
+            return True
+
+        return False
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = [
         "http://localhost",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:3000",
         "http://localhost:3000",
         "http://localhost:8000",
     ]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
+    def assemble_cors_origins(cls, v: str | list[str]) -> list[str] | str:  # NOQA: N805
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
+        elif isinstance(v, list | str):
             return v
         raise ValueError(v)
 
-    @field_validator("DEBUG", mode="before")
-    def assemble_bool(cls, v: Union[str, bool, None]):
-        return bool(v)
+    @field_validator('DEBUG', 'TEST_MODE', 'PYTHONASYNCIODEBUG', mode='before')
+    def assemble_bool(cls, value: str | int | bool | None) -> bool:  # NOQA: N805
+        return bool(value)
 
 
     model_config = SettingsConfigDict(
         case_sensitive=True,
-        env_file=".env",
+        env_file="./.env",
         env_file_encoding="utf-8",
     )
-
-    # DATABASE_URI: Optional[PostgresDsn] = None
-    #
-    # @field_validator('DATABASE_URI', mode='before')
-    # @classmethod
-    # def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
-    #     if isinstance(v, str):
-    #         return v
-    #
-    #     params = dict(scheme='postgresql+asyncpg',
-    #                   user=values.get('POSTGRES_USER'),
-    #                   password=values.get('POSTGRES_PASSWORD'),
-    #                   host=values.get('POSTGRES_SERVER'),
-    #                   path=f"/{values.get('POSTGRES_DB')}"
-    #                   )
-    #     return PostgresDsn.build(**params)
 
 
 settings = Settings()
