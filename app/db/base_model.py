@@ -1,16 +1,17 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID, uuid4
 
-from sqlalchemy import BIGINT, String, DateTime
-from sqlalchemy import Uuid, Boolean
+from sqlalchemy import BIGINT, String, DateTime, Uuid
+from sqlalchemy import Boolean
 from sqlalchemy.dialects.postgresql import VARCHAR
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
-from typing_extensions import Annotated
 
 str_20 = Annotated[str, 20]
 str_100 = Annotated[str, 100]
+str_200 = Annotated[str, 200]
 str_1000 = Annotated[str, 1000]
 type Varchar = str
 
@@ -25,6 +26,7 @@ class Base(AsyncAttrs, DeclarativeBase):
         str: String,
         str_20: String(20),
         str_100: String(100),
+        str_200: String(200),
         str_1000: String(1000),
         Varchar: VARCHAR,
         UUID: Uuid,

@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +11,7 @@ from schemas.channel import ChannelCreate, ChannelUpdate
 class CRUDChannel(CRUDBase[ChannelORM, ChannelCreate, ChannelUpdate]):
     async def get_user_channels(
         self,
-        db: AsyncSession,
+        db_session: AsyncSession,
         user: UserORM,
         offset: int = 0,
         limit: int = 1000,
@@ -20,12 +20,12 @@ class CRUDChannel(CRUDBase[ChannelORM, ChannelCreate, ChannelUpdate]):
         Retrieve all channels associated with a specific user.
 
         Args:
-            db (AsyncSession): The database session.
+            db_session (AsyncSession): The database session.
             user (UserORM): The user whose channels are to be retrieved.
             offset (int): The number of records to skip.
             limit (int): The maximum number of records to retrieve.
         """
-        result = await db.execute(
+        result = await db_session.execute(
             select(self.model)
             # .join(self.model.user)
             .where(self.model.user_id == user.id)

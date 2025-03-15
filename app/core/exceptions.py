@@ -7,12 +7,12 @@ class BaseCustomException(Exception):
 
 
 class BaseHTTPException(HTTPException):
-    def __init__(self, status_code: int, detail: str, **kwargs):
+    def __init__(self, status_code: int, detail: str, **kwargs) -> None:
         super().__init__(status_code=status_code, detail=detail, **kwargs)
 
 
 class AuthException(BaseHTTPException):
-    def __init__(self, msg: str | None = None):
+    def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=msg or "Could not validate credentials",
@@ -21,7 +21,7 @@ class AuthException(BaseHTTPException):
 
 
 class UserAlreadyExistsException(BaseHTTPException):
-    def __init__(self, msg: str | None = None):
+    def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=msg or "User with this email already exists",
@@ -29,7 +29,7 @@ class UserAlreadyExistsException(BaseHTTPException):
 
 
 class UserNotFoundException(BaseHTTPException):
-    def __init__(self, msg: str | None = None):
+    def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=msg or "User not found",
@@ -37,7 +37,7 @@ class UserNotFoundException(BaseHTTPException):
 
 
 class InactiveUserException(BaseHTTPException):
-    def __init__(self, msg: str | None = None):
+    def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=msg or "Inactive user",
@@ -46,7 +46,7 @@ class InactiveUserException(BaseHTTPException):
 
 
 class UnconfirmedUserException(BaseHTTPException):
-    def __init__(self, msg: str | None = None):
+    def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=msg or "User is not verified. Check your email or request a new confirmation email",  # NOQA
@@ -55,7 +55,7 @@ class UnconfirmedUserException(BaseHTTPException):
 
 
 class AccessForbiddenException(BaseHTTPException):
-    def __init__(self, msg: str | None = None):
+    def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=msg or "Access forbidden. You do not have access to this resource",

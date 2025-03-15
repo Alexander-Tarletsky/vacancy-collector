@@ -5,13 +5,12 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
-
 template_router = APIRouter(default_response_class=HTMLResponse)
 templates = Jinja2Templates(directory="app/templates")
 
 
 # @template_router.get("/", include_in_schema=False)
-# async def dashboard(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
+# async def dashboard(request: Request, db_session: Annotated[AsyncSession, Depends(get_db)]):
 #     # Example data fetching - implement your actual queries here
 #     channels_count = await ChannelService().get_count(db)
 #     active_channels_count = await ChannelService().get_active_count(db)

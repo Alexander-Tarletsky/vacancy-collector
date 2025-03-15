@@ -5,18 +5,18 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    first_name: str | None
-    last_name: str | None
+    first_name: str | None = Field(default=None)
+    last_name: str | None = Field(default=None)
     email: EmailStr | None
     api_id: str | None
     api_hash: str | None
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
-    is_confirmed: bool = Field(default=False)
+    is_confirmed: bool = Field(default=True)
 
 
 class UserSignUp(UserBase):
-    password: str
+    password: str  # TODO: token!
 
 
 class UserSignIn(BaseModel):
