@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 from uuid import UUID
 
 from sqlalchemy import select
@@ -12,29 +12,31 @@ from schemas.vacancy import VacancyCreate, VacancyUpdate
 class CRUDVacancy(CRUDBase[VacancyORM, VacancyCreate, VacancyUpdate]):
     async def get_channel_vacancies(
             self,
-            db: AsyncSession,
+            db_session: AsyncSession,
             channel_id: UUID
     ) -> Sequence[VacancyORM]:
         """
         Retrieve all vacancies associated with a specific channel.
 
         Args:
-            db (AsyncSession): The database session.
+            db_session (AsyncSession): The database session.
             channel_id (UUID): The UUID of the channel whose vacancies are to be retrieved.
         """
-        result = await db.execute(select(self.model).where(self.model.channel_id == channel_id))
+        result = await db_session.execute(
+            select(self.model).where(self.model.channel_id == channel_id)
+        )
         return result.scalars().all()
 
     async def get_user_vacancies(
             self,
-            db: AsyncSession,
+            db_session: AsyncSession,
             user_id: UUID
     ) -> Sequence[VacancyORM]:
         """
         Retrieve all vacancies associated with a specific user.
 
         Args:
-            db (AsyncSession): The database session.
+            db_session (AsyncSession): The database session.
             user_id (UUID): The UUID of the user whose vacancies are to be retrieved.
         """
         stmt = (
@@ -43,7 +45,7 @@ class CRUDVacancy(CRUDBase[VacancyORM, VacancyCreate, VacancyUpdate]):
             ))
         )
 
-        result = await db.execute(stmt)
+        result = await db_session.execute(stmt)
 
         return result.scalars().all()
 

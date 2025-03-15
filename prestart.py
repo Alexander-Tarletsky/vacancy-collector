@@ -19,9 +19,9 @@ wait_seconds = 1
 )
 def init() -> None:
     try:
-        db = AsyncSessionFactory()
+        db_session = AsyncSessionFactory()
         # Try to create session to check if DB is awake
-        db.execute("SELECT 1")
+        db_session.execute("SELECT 1")
     except Exception as e:
         logger.error(e)
         raise e

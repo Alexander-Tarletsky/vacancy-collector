@@ -1,22 +1,21 @@
-# from __future__ import annotations
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from db.base_model import Base, str_100, str_20, Varchar, str_1000
+from db.base_model import Base, str_100, Varchar, str_1000, str_200
 from db.mixins import UserRelationMixin
 
 
 class UserORM(Base):
     __tablename__ = "users"
 
-    first_name: Mapped[str_100]
-    last_name: Mapped[str_100]
+    first_name: Mapped[str_100 | None]
+    last_name: Mapped[str_100 | None]
     email: Mapped[str_100] = mapped_column(unique=True)
-    password: Mapped[str_20]
-    api_id: Mapped[str]
-    api_hash: Mapped[str]
+    password: Mapped[str_1000]
+    api_id: Mapped[str_200]
+    api_hash: Mapped[str_1000]
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
     is_confirmed: Mapped[bool] = mapped_column(default=False)
@@ -27,10 +26,10 @@ class UserORM(Base):
         cascade="all, delete-orphan"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.email})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
 
@@ -50,10 +49,10 @@ class ChannelORM(UserRelationMixin, Base):
         cascade="all, delete-orphan"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.title})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
 
@@ -72,8 +71,8 @@ class VacancyORM(Base):
     channel_id: Mapped[UUID] = mapped_column(ForeignKey("channels.id", ondelete="CASCADE"))
     channel: Mapped[ChannelORM] = relationship(back_populates="vacancies")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.id})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()

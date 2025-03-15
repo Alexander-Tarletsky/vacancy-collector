@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 from typing import Annotated
 
 from fastapi import Depends
@@ -13,7 +13,7 @@ from crud.user import user_crud
 from db.connect import get_session
 from db.models import UserORM
 
-SECRET_KEY = settings.SECRET_KEY
+SECRET_KEY = settings.JWT_SECRET
 ALGORITHM = settings.ALGORITHM  # "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
@@ -31,7 +31,7 @@ def hash_password(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (
+    expire = datetime.now(UTC) + (
             expires_delta
             or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
@@ -42,9 +42,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 async def authenticate_user(
         email: str,
         password: str,
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserORM | bool:
-    user = await user_crud.get_by_email(db, email)
+    user = await user_crud.get_by_email(db_session, email)
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -54,20 +54,23 @@ async def authenticate_user(
 
 async def current_user(
         token: Annotated[str, Depends(oauth2_scheme)],
-        db: Annotated[AsyncSession, Depends(get_session)],
+        db_session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserORM:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise AuthException
-    except JWTError:
+    except JWTError as exc:
+        raise AuthException from exc
+
+    user = await user_crud.get_by_email(db_session, email)
+
+    if user is None:
         raise AuthException
-
-    user = await user_crud.get_by_email(db, email)
-
-    if user is None: raise AuthException
-    if not user.is_active: raise InactiveUserException
-    if not user.is_confirmed: raise UnconfirmedUserException
+    if not user.is_active:
+        raise InactiveUserException
+    if not user.is_confirmed:
+        raise UnconfirmedUserException
 
     return user
