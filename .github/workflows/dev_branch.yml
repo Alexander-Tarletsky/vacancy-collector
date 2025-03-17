@@ -1,4 +1,4 @@
-name: Linters and Tests
+name: Code Checks DEV
 
 on:
   pull_request:
