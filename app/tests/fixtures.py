@@ -32,8 +32,8 @@ logger = logging.getLogger(__name__)
 @pytest_asyncio.fixture(scope="session")
 async def async_engine() -> AsyncGenerator[AsyncEngine, Any]:  # NOQA: UP043
     # Create a new async engine in the session scope
-    t_engine = create_async_engine(settings.DATABASE_URI, echo=True)
-    logger.info(f"Connected to database: {settings.DATABASE_URI}")
+    t_engine = create_async_engine(settings.TEST_DATABASE_URI, echo=True)
+    logger.info(f"Connected to database: {settings.TEST_DATABASE_URI}")
 
     # Create the database tables
     async with t_engine.begin() as conn:

@@ -38,12 +38,12 @@ python = ">=3.13.0,<4.0.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 httpx = "^0.28.1"
-ruff = "^0.9.9"
 black = "^25.1.0"
 faker = "^37.0.0"
 pytest-asyncio = "^0.25.0"
 pytest-cov = "^6.0.0"
 coverage = "^7.6.12"
+ruff = "^0.11.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -82,7 +82,8 @@ directory = "coverage_html_report"
 [tool.pytest.ini_options]
 # Not working for some reason, so use pytest.ini
 pythonpath = [".", "app"]
-#addopts = "-vv -n auto --cov --cov-report xml --cov-report term-missing --cov-fail-under=100"
+#addopts = "--no-header -vv -n auto --cov --cov-report xml --cov-report term-missing --cov-fail-under=100"
+addopts = "-vv"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_mode = "auto"
 testpaths = ["app/tests"]
