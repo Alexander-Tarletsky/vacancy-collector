@@ -81,7 +81,7 @@ jobs:
         run: poetry install
 
       - name: Start container with test database
-        run: docker-compose -f "docker-compose-tests.yml" up -d --build
+        run: docker compose -f "docker-compose-tests.yml" up -d --build --wait
 
       - name: Run tests
         run: poetry run pytest
