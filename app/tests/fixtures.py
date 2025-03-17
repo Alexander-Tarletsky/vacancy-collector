@@ -105,17 +105,17 @@ async def client(
     connection: AsyncConnection,
     transaction: AsyncTransaction,
 ) -> AsyncGenerator[AsyncClient, None]:  # NOQA: UP043
-    """
-    The client fixture is used to create an HTTP client for testing the API.
-    The client is created once per test and is shared across all test functions within the test.
-    The client is closed at the end of the test to free up resources.
-
-    The session fixture is used to ensure data isolation.
-    Within the overall transaction, each test runs in its own transaction,
-    and once the test ends, the overall transaction is rolled back, rolling back all nested
-    transactions and keeping the database clean.
-    """
     async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:  # NOQA: UP043
+        """
+        The client fixture is used to create an HTTP client for testing the API.
+        The client is created once per test and is shared across all test functions within the test.
+        The client is closed at the end of the test to free up resources.
+
+        The session fixture is used to ensure data isolation.
+        Within the overall transaction, each test runs in its own transaction,
+        and once the test ends, the overall transaction is rolled back, rolling back all nested
+        transactions and keeping the database clean.
+        """
         async_session = AsyncSession(
             bind=connection,
             join_transaction_mode="create_savepoint",
@@ -151,15 +151,15 @@ async def user_factory(
     session: AsyncSession,
     fake: Faker,
 ) -> Callable:
-    """
-    This fixture is used to create a user in the database.
-    """
     async def create_user(
         email: EmailStr | None = None,
         password: str | None = "password",  # NOQA: S107
         api_id: str | None = "api_id",
         api_hash: str | None = "api_hash",
     ) -> UserResponse | dict | None:
+        """
+        This fixture is used to create a user in the database.
+        """
         hashed_password = hash_password(password)
         new_user = await user_crud.create(
             session,
@@ -182,10 +182,10 @@ async def channel_factory(
     user_factory: Callable,
     fake: Faker,
 ) -> Callable:
-    """
-    This fixture is used to create a channel in the database.
-    """
     async def create_channel(user: UserResponse | None = None) -> ChannelResponse | dict | None:
+        """
+        This fixture is used to create a channel in the database.
+        """
         user = user or await user_factory()
 
         new_channel = await channel_crud.create(
@@ -202,8 +202,9 @@ async def channel_factory(
 
     return create_channel
 
+
 @pytest_asyncio.fixture(scope="package")
-async def get_test_user_data(fake) -> dict:
+async def get_test_user_data(fake: Faker) -> dict:
     return UserCreate(
         email=fake.email(safe=True, domain="example.com"),
         password="secret",

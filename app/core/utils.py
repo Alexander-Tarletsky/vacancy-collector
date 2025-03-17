@@ -6,7 +6,7 @@ from db.connect import async_engine
 
 async def get_db_version() -> str:
     async with async_engine.connect() as conn:
-        version = await conn.scalar('SELECT version()')
+        version = await conn.scalar("SELECT version()")
         return version
 
 
@@ -21,6 +21,7 @@ class MetaSingleton(type):
     """
     There is a thread-safe implementation of Singleton.
     """
+
     _instances = {}
     _lock: Lock = Lock()
 

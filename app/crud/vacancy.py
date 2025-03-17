@@ -11,9 +11,7 @@ from schemas.vacancy import VacancyCreate, VacancyUpdate
 
 class CRUDVacancy(CRUDBase[VacancyORM, VacancyCreate, VacancyUpdate]):
     async def get_channel_vacancies(
-            self,
-            db_session: AsyncSession,
-            channel_id: UUID
+        self, db_session: AsyncSession, channel_id: UUID
     ) -> Sequence[VacancyORM]:
         """
         Retrieve all vacancies associated with a specific channel.
@@ -28,9 +26,7 @@ class CRUDVacancy(CRUDBase[VacancyORM, VacancyCreate, VacancyUpdate]):
         return result.scalars().all()
 
     async def get_user_vacancies(
-            self,
-            db_session: AsyncSession,
-            user_id: UUID
+        self, db_session: AsyncSession, user_id: UUID
     ) -> Sequence[VacancyORM]:
         """
         Retrieve all vacancies associated with a specific user.
@@ -39,10 +35,8 @@ class CRUDVacancy(CRUDBase[VacancyORM, VacancyCreate, VacancyUpdate]):
             db_session (AsyncSession): The database session.
             user_id (UUID): The UUID of the user whose vacancies are to be retrieved.
         """
-        stmt = (
-            select(self.model).filter(self.model.channel_id.in_(
-                select(ChannelORM.id).filter(ChannelORM.user_id == user_id)
-            ))
+        stmt = select(self.model).filter(
+            self.model.channel_id.in_(select(ChannelORM.id).filter(ChannelORM.user_id == user_id))
         )
 
         result = await db_session.execute(stmt)

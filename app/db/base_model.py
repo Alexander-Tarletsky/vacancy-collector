@@ -41,12 +41,12 @@ class Base(AsyncAttrs, DeclarativeBase):
 
     created_at: Mapped[datetime] = mapped_column(
         index=True,
-        doc='Time of creation',
+        doc="Time of creation",
         server_default=func.now(),
     )
 
     updated_at: Mapped[datetime] = mapped_column(
-        doc='Time of last modification',
+        doc="Time of last modification",
         server_default=func.now(),
         onupdate=func.now(),
     )

@@ -120,6 +120,7 @@ exclude = [
     "site-packages",
     "venv",
     "__init__.py",
+    "alembic/*",
 ]
 
 # Same as Black.
@@ -167,6 +168,11 @@ ignore = [
     "COM812",  # Missing trailing comma
     "N818",
     "ANN003",
+    "ERA001",  # Found commented-out code
+    "S105",  # Possible hardcoded password assigned
+    "ARG001",  # Unused function argument
+    "S106",  # Possible hardcoded password assigned to argument
+    "ARG003",  # Unused class method argument
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

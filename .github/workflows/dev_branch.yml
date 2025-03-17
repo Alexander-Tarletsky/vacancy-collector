@@ -51,7 +51,7 @@ jobs:
 
   tests:
     name: Tests
-#    needs: linters
+    needs: linters
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
