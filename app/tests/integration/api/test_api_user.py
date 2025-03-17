@@ -10,7 +10,7 @@ pytestmark = pytest.mark.asyncio(loop_scope="session")
 TEST_PATH = settings.API_V1_STR
 
 
-async def test_me_rout(client: AsyncClient, fake: Faker, user_factory: Callable) -> None:
+async def test_me_rout(client: AsyncClient, fake: Faker, user_factory: Callable) -> None:  # NOQA: ARG001
     email = "login@example.com"
     password = "secret"
     await user_factory(email=email, password=password)

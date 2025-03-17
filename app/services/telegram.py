@@ -1,5 +1,5 @@
-from telethon import TelegramClient
-from telethon.sessions import SQLiteSession
+# from telethon import TelegramClient
+# from telethon.sessions import SQLiteSession
 
 
 class TelegramService:

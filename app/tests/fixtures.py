@@ -204,7 +204,7 @@ async def channel_factory(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def get_test_user_data(fake) -> dict:
+async def get_test_user_data(fake: Faker) -> dict:
     return UserCreate(
         email=fake.email(safe=True, domain="example.com"),
         password="secret",
