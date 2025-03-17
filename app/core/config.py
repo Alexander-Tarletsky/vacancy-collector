@@ -31,27 +31,27 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO"
 
-    @field_validator('ENVIRONMENT', mode='before')
+    @field_validator("ENVIRONMENT", mode="before")
     def set_environment(cls, value: str) -> str:  # NOQA: N805
         if value not in ("development", "production", "local"):
             raise ValueError("Invalid environment")
         return value
 
-    @field_validator('IS_PRODUCTION', mode='before')
+    @field_validator("IS_PRODUCTION", mode="before")
     def set_is_production(cls, value: bool, info: ValidationInfo) -> bool:  # NOQA: N805
-        return info.data.get('ENVIRONMENT') == "production"
+        return info.data.get("ENVIRONMENT") == "production"
 
-    @field_validator('IS_DEVELOPMENT', mode='before')
+    @field_validator("IS_DEVELOPMENT", mode="before")
     def set_is_development(cls, value: bool, info: ValidationInfo) -> bool:  # NOQA: N805
-        return info.data.get('ENVIRONMENT') == "development"
+        return info.data.get("ENVIRONMENT") == "development"
 
-    @field_validator('IS_LOCAL', mode='before')
+    @field_validator("IS_LOCAL", mode="before")
     def set_is_local(cls, value: bool, info: ValidationInfo) -> bool:  # NOQA: N805
-        return info.data.get('ENVIRONMENT') == "local"
+        return info.data.get("ENVIRONMENT") == "local"
 
     FIRST_SUPERUSER: EmailStr = "root@root.com"
     FIRST_SUPERUSER_PW: str = "strongpassword"
-    SALT: str= "a91349ae8f7"
+    SALT: str = "a91349ae8f7"
 
     JWT_SECRET: str = "JWT_SECRET"  # NOQA: S105
     ALGORITHM: str = "HS256"
@@ -62,47 +62,70 @@ class Settings(BaseSettings):
 
     DB_HOST: str = "db"
     DB_PORT: int = 5432
-    DB_USER: str = "DB_USER"
-    DB_PASSWORD: str = "DB_PASSWORD"  # NOQA: S105
+    DB_USER: str = "db_user"
+    DB_PASSWORD: str = "db_password"  # NOQA: S105
     DB_NAME: str = "vacancy_collector"
-    TEST_DB_NAME_PREFIX: str = "test_"
     DB_ECHO: bool | None = None
     DATABASE_URI: PostgresDsn | str | None = None
 
-    @field_validator('DATABASE_URI', mode='before')
+    TEST_DB_HOST: str = "test_db"
+    TEST_DB_PORT: int = 5433
+    TEST_DB_USER: str = "test_db_user"
+    TEST_DB_PASSWORD: str = "test_db_password"  # NOQA: S105
+    TEST_DB_NAME: str = "test_vacancy_collector"
+    TEST_DATABASE_URI: PostgresDsn | str | None = None
+
+    @field_validator("DATABASE_URI", mode="before")
     def assemble_db_uri(cls, value: str | None, info: ValidationInfo) -> str:  # NOQA: N805
         if isinstance(value, str):
             # There is assumed that if you set the DB URL yourself, then this is your responsibility
             logger.info(f"DATABASE_URI is: {value}")
             return value
 
-        host = info.data.get('IS_LOCAL') and "127.0.0.1" or info.data.get('DB_HOST')
-
-        if info.data.get('TEST_MODE'):
-            if not info.data.get('TEST_DB_NAME_PREFIX'):
-                raise ValueError("TEST_DB_NAME_PREFIX is not set")
-            db_name = f"{info.data.get('TEST_DB_NAME_PREFIX')}{info.data.get('DB_NAME')}"
-        else:
-            db_name = info.data.get('DB_NAME')
+        host = info.data.get("IS_LOCAL") and "127.0.0.1" or info.data.get("DB_HOST")
 
         value = PostgresDsn.build(
-            scheme='postgresql+asyncpg',
-            username=info.data.get('DB_USER'),
-            password=info.data.get('DB_PASSWORD'),
+            scheme="postgresql+asyncpg",
+            username=info.data.get("DB_USER"),
+            password=info.data.get("DB_PASSWORD"),
             host=host,
-            port=info.data.get('DB_PORT'),
-            path=db_name,
+            port=info.data.get("DB_PORT"),
+            path=info.data.get("DB_NAME"),
         ).unicode_string()
         logger.info(f"DATABASE_URI is assembled: {value}")
 
         return value
 
-    @field_validator('DB_ECHO', mode='before')
+    @field_validator("TEST_DATABASE_URI", mode="before")
+    def assemble_test_db_uri(cls, value: str | None, info: ValidationInfo) -> str:  # NOQA: N805
+        if isinstance(value, str):
+            # There is assumed that if you set the DB URL yourself, then this is your responsibility
+            logger.info(f"TEST_DATABASE_URI is: {value}")
+            return value
+
+        if info.data.get("TEST_MODE"):
+            if not info.data.get("TEST_DB_PASSWORD"):
+                raise ValueError("Before running tests, you must set TEST_DB_PASSWORD in settings.")
+
+        value = PostgresDsn.build(
+            scheme="postgresql+asyncpg",
+            username=info.data.get("TEST_DB_USER"),
+            password=info.data.get("TEST_DB_PASSWORD"),
+            host=info.data.get("TEST_DB_HOST"),
+            port=info.data.get("TEST_DB_PORT"),
+            path=info.data.get("TEST_DB_NAME"),
+        ).unicode_string()
+
+        logger.info(f"TEST_DATABASE_URI is assembled: {value}")
+
+        return value
+
+    @field_validator("DB_ECHO", mode="before")
     def assemble_db_echo(cls, value: str | int | bool | None, info: ValidationInfo) -> bool:  # NOQA: N805
         if isinstance(value, str | int | bool):
             return bool(value)
 
-        if info.data.get('DEBUG') or info.data.get('TEST_MODE'):
+        if info.data.get("DEBUG") or info.data.get("TEST_MODE"):
             return True
 
         return False
@@ -124,10 +147,9 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    @field_validator('DEBUG', 'TEST_MODE', 'PYTHONASYNCIODEBUG', mode='before')
+    @field_validator("DEBUG", "TEST_MODE", "PYTHONASYNCIODEBUG", mode="before")
     def assemble_bool(cls, value: str | int | bool | None) -> bool:  # NOQA: N805
         return bool(value)
-
 
     model_config = SettingsConfigDict(
         case_sensitive=True,

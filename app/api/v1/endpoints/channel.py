@@ -17,10 +17,10 @@ router = APIRouter()
 
 @router.get("/{channel_id}", response_model=Response)
 async def get_user_channel(
-        channel_id: UUID,
-        db_session: Annotated[AsyncSession, Depends(get_session)],
-        user: Annotated[UserORM, Depends(current_user)],
-        channel_service: Annotated[ChannelService, Depends()],
+    channel_id: UUID,
+    db_session: Annotated[AsyncSession, Depends(get_session)],
+    user: Annotated[UserORM, Depends(current_user)],
+    channel_service: Annotated[ChannelService, Depends()],
 ) -> Response:
     """
     Retrieve a specific channel by ID.
@@ -34,17 +34,15 @@ async def get_user_channel(
     channel = await channel_service.get_by_id(db_session, user, channel_id)
 
     return Response(
-        status_code=status.HTTP_200_OK,
-        message="Successfully fetched channel",
-        data=channel
+        status_code=status.HTTP_200_OK, message="Successfully fetched channel", data=channel
     )
 
 
 @router.get("", response_model=Response)
 async def get_user_channels(
-        db_session: Annotated[AsyncSession, Depends(get_session)],
-        user: Annotated[UserORM, Depends(current_user)],
-        channel_service: Annotated[ChannelService, Depends()],
+    db_session: Annotated[AsyncSession, Depends(get_session)],
+    user: Annotated[UserORM, Depends(current_user)],
+    channel_service: Annotated[ChannelService, Depends()],
 ) -> Response:
     """
     Retrieve all channels associated with the current user.
@@ -57,17 +55,17 @@ async def get_user_channels(
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully fetched channels",
-        data=await channel_service.get_user_channels(db_session, user)
+        data=await channel_service.get_user_channels(db_session, user),
     )
 
 
 @router.post("", response_model=Response)
 async def create(
-        db_session: Annotated[AsyncSession, Depends(get_session)],
-        user: Annotated[UserORM, Depends(current_user)],
-        channel_service: Annotated[ChannelService, Depends()],
-        *,
-        channel_data: ChannelCreate,
+    db_session: Annotated[AsyncSession, Depends(get_session)],
+    user: Annotated[UserORM, Depends(current_user)],
+    channel_service: Annotated[ChannelService, Depends()],
+    *,
+    channel_data: ChannelCreate,
 ) -> Response:
     """
     Create a new channel for the current user.
@@ -81,17 +79,17 @@ async def create(
     return Response(
         status_code=status.HTTP_201_CREATED,
         message="Successfully created channel",
-        data=await channel_service.create(db_session, user, channel_data)
+        data=await channel_service.create(db_session, user, channel_data),
     )
 
 
 @router.put("/{channel_id}", response_model=Response)
 async def update_channel(
-        channel_id: UUID,
-        channel_data: ChannelUpdate,
-        user: Annotated[UserORM, Depends(current_user)],
-        db_session: Annotated[AsyncSession, Depends(get_session)],
-        channel_service: Annotated[ChannelService, Depends()],
+    channel_id: UUID,
+    channel_data: ChannelUpdate,
+    user: Annotated[UserORM, Depends(current_user)],
+    db_session: Annotated[AsyncSession, Depends(get_session)],
+    channel_service: Annotated[ChannelService, Depends()],
 ) -> Response:
     """
     Update a channel by ID.
@@ -106,16 +104,16 @@ async def update_channel(
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully updated channel",
-        data=await channel_service.update_user_channel(db_session, channel_id, user, channel_data)
+        data=await channel_service.update_user_channel(db_session, channel_id, user, channel_data),
     )
 
 
 @router.delete("/{channel_id}", response_model=Response)
 async def delete_channel(
-        channel_id: UUID,
-        user: Annotated[UserORM, Depends(current_user)],
-        db_session: Annotated[AsyncSession, Depends(get_session)],
-        channel_service: Annotated[ChannelService, Depends()],
+    channel_id: UUID,
+    user: Annotated[UserORM, Depends(current_user)],
+    db_session: Annotated[AsyncSession, Depends(get_session)],
+    channel_service: Annotated[ChannelService, Depends()],
 ) -> Response:
     """
     Delete a channel by ID.
@@ -129,5 +127,5 @@ async def delete_channel(
     return Response(
         status_code=status.HTTP_200_OK,
         message="Successfully deleted channel",
-        data=await channel_service.delete_user_channel(db_session, user, channel_id)
+        data=await channel_service.delete_user_channel(db_session, user, channel_id),
     )

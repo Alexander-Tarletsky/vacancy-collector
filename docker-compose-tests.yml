@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  test_db:
+    image: postgres:16-alpine
+    container_name: tvc_test_db
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${TEST_DB_USER:-test_user}
+      POSTGRES_PASSWORD: ${TEST_DB_PASSWORD}
+      POSTGRES_DB: ${TEST_DB_NAME:-tvc_test_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  test_postgres_data: {}

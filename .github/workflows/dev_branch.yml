@@ -1,0 +1,90 @@
+name: Linters and Tests
+
+on:
+  pull_request:
+    branches:
+      - development
+
+env:
+  TEST_DB_USER: ${{ secrets.TEST_DB_USER }}
+  TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+  TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
+  TEST_MODE: 1
+
+#permissions:
+#  contents: read
+
+jobs:
+  linters:
+    name: Linters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup Poetry
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+          pipx install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+      - name: Install dependencies from cache
+        id: poetry-cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: poetry-ci-dependencies-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --with dev
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
+      # Update output format to enable automatic inline annotations.
+      - name: Run Ruff
+        run: poetry run ruff check --output-format=github .
+
+  tests:
+    name: Tests
+#    needs: linters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Setup Poetry
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+          pipx install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+      - name: Install dependencies from cache
+        id: poetry-cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: poetry-tests-dependencies-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
+
+      - name: Setup project
+        run: poetry install
+
+      - name: Start container with test database
+        run: docker-compose -f "docker-compose-tests.yml" up -d --build
+
+      - name: Run tests
+        run: poetry run pytest
+
+      - name: Stop container
+        run: docker-compose -f "docker-compose-tests.yml" down
