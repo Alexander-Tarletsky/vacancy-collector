@@ -31,18 +31,15 @@ def hash_password(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
-    expire = datetime.now(UTC) + (
-            expires_delta
-            or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
+    expire = datetime.now(UTC) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 async def authenticate_user(
-        email: str,
-        password: str,
-        db_session: Annotated[AsyncSession, Depends(get_session)],
+    email: str,
+    password: str,
+    db_session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserORM | bool:
     user = await user_crud.get_by_email(db_session, email)
     if not user:
@@ -53,8 +50,8 @@ async def authenticate_user(
 
 
 async def current_user(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        db_session: Annotated[AsyncSession, Depends(get_session)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db_session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserORM:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

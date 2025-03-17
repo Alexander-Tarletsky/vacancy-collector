@@ -4,4 +4,3 @@ from telethon.sessions import SQLiteSession
 
 class TelegramService:
     pass
-

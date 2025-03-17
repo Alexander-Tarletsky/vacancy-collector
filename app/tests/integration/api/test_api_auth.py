@@ -47,13 +47,8 @@ async def test_login_success(client: AsyncClient, user_factory: Callable) -> Non
     password = "secret"
     await user_factory(email=email, password=password)
 
-    form_data = {
-        "username": email,
-        "password": password
-    }
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+    form_data = {"username": email, "password": password}
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     response = await client.post(f"{TEST_PATH}/token", data=form_data, headers=headers)
     assert response.status_code == 200, response.text
@@ -64,12 +59,7 @@ async def test_login_success(client: AsyncClient, user_factory: Callable) -> Non
 
 async def test_login_fail(client: AsyncClient, user_factory: Callable) -> None:
     await user_factory(email="login@example.com", password="secret")
-    form_data = {
-        "username": "nonexistent@example.com",
-        "password": "wrongpassword"
-    }
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+    form_data = {"username": "nonexistent@example.com", "password": "wrongpassword"}
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
     response = await client.post(f"{TEST_PATH}/token", data=form_data, headers=headers)
     assert response.status_code == 401, response.text
