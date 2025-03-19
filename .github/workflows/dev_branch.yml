@@ -86,7 +86,7 @@ jobs:
         run: docker compose -f "docker-compose-tests.yml" up -d --build --wait
 
       - name: Run tests
-        run: poetry run pytest
+        run: poetry run pytest --cov=app
 
       - name: Stop container
         run: docker compose -f "docker-compose-tests.yml" down

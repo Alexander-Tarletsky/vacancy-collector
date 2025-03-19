@@ -35,7 +35,7 @@ class VacancyService:
         user: UserORM,
         vacancy_id: UUID,
     ) -> VacancyResponse:
-        vacancy = await vacancy_crud.get_or_404(db_session, id=vacancy_id)
+        vacancy = await vacancy_crud.get_or_404(db_session, obj_id=vacancy_id)
         if vacancy.channel.user_id != user.id:
             raise AccessForbiddenException
         return VacancyResponse.model_validate(vacancy)
@@ -59,7 +59,7 @@ class VacancyService:
         vacancy_id: UUID,
         vacancy_data: VacancyUpdate,
     ) -> VacancyResponse:
-        vacancy = await vacancy_crud.get_or_404(db_session, id=vacancy_id)
+        vacancy = await vacancy_crud.get_or_404(db_session, obj_id=vacancy_id)
         if vacancy.channel.user_id != user.id:
             raise AccessForbiddenException
 
@@ -73,9 +73,9 @@ class VacancyService:
         user: UserORM,
         vacancy_id: UUID,
     ) -> UUID:
-        vacancy = await vacancy_crud.get_or_404(db_session, id=vacancy_id)
+        vacancy = await vacancy_crud.get_or_404(db_session, obj_id=vacancy_id)
         if vacancy.channel.user_id != user.id:
             raise AccessForbiddenException
 
-        await vacancy_crud.remove(db_session, id=vacancy_id)
+        await vacancy_crud.remove(db_session, obj_id=vacancy_id)
         return vacancy_id

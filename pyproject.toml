@@ -82,7 +82,6 @@ directory = "coverage_html_report"
 [tool.pytest.ini_options]
 # Not working for some reason, so use pytest.ini
 pythonpath = [".", "app"]
-#addopts = "--no-header -vv -n auto --cov --cov-report xml --cov-report term-missing --cov-fail-under=100"
 addopts = "-vv"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_mode = "auto"
@@ -173,6 +172,7 @@ ignore = [
     "ARG001",  # Unused function argument
     "S106",  # Possible hardcoded password assigned to argument
     "ARG003",  # Unused class method argument
+    "UP043",  # Unnecessary default type arguments - Generator[httpx.Request, httpx.Response, None]
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
