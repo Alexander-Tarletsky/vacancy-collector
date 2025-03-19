@@ -25,7 +25,7 @@ class ChannelService:
         user: UserORM,
         channel_id: UUID,
     ) -> ChannelResponse:
-        channel = await channel_crud.get_or_404(db_session, id=channel_id)
+        channel = await channel_crud.get_or_404(db_session, obj_id=channel_id)
         if channel.user_id != user.id:
             raise AccessForbiddenException
 
@@ -52,7 +52,7 @@ class ChannelService:
         user: UserORM,
         channel_data: ChannelUpdate,
     ) -> ChannelResponse:
-        channel = await channel_crud.get_or_404(db_session, id=channel_id)
+        channel = await channel_crud.get_or_404(db_session, obj_id=channel_id)
         if channel.user_id != user.id:
             raise AccessForbiddenException
 
@@ -66,9 +66,9 @@ class ChannelService:
         user: UserORM,
         channel_id: UUID,
     ) -> UUID:
-        channel = await channel_crud.get_or_404(db_session, id=channel_id)
+        channel = await channel_crud.get_or_404(db_session, obj_id=channel_id)
         if channel.user_id != user.id:
             raise AccessForbiddenException
 
-        await channel_crud.remove(db_session, id=channel_id)
+        await channel_crud.remove(db_session, obj_id=channel_id)
         return channel_id
