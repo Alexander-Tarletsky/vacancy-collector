@@ -22,8 +22,7 @@ class UserORM(Base):
 
     # One-to-many relationship with Channel
     channels: Mapped[list["ChannelORM"]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan"
+        back_populates="user", cascade="all, delete-orphan"
     )
 
     def __str__(self) -> str:
@@ -45,8 +44,7 @@ class ChannelORM(UserRelationMixin, Base):
 
     # One-to-many relationship with Vacancy
     vacancies: Mapped[list["VacancyORM"]] = relationship(
-        back_populates="channel",
-        cascade="all, delete-orphan"
+        back_populates="channel", cascade="all, delete-orphan"
     )
 
     def __str__(self) -> str:

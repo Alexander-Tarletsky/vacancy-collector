@@ -10,7 +10,6 @@ dependencies = [
     "fastapi (>=0.115.0,<0.116.0)",
     "uvicorn[standard]>=0.29.0,<0.30.0",
     "telethon>=1.33.0,<2.0.0",
-    "sqlalchemy>=2.0.29,<3.0.0",
     "asyncpg>=0.30.0,<0.31.0",
     "alembic>=1.13.1,<2.0.0",
     "python-dotenv>=1.0.1,<2.0.0",
@@ -26,6 +25,7 @@ dependencies = [
     "pydantic[dotenv,mail,timezone] (>=2.10.6,<3.0.0)",
     "email-validator (>=2.2.0,<3.0.0)",
     "anyio (>=4.8.0,<5.0.0)",
+    "sqlalchemy (>=2.0.39,<3.0.0)",
 ]
 
 [tool.poetry]
@@ -38,12 +38,12 @@ python = ">=3.13.0,<4.0.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 httpx = "^0.28.1"
-ruff = "^0.9.9"
 black = "^25.1.0"
 faker = "^37.0.0"
 pytest-asyncio = "^0.25.0"
 pytest-cov = "^6.0.0"
 coverage = "^7.6.12"
+ruff = "^0.11.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -82,7 +82,7 @@ directory = "coverage_html_report"
 [tool.pytest.ini_options]
 # Not working for some reason, so use pytest.ini
 pythonpath = [".", "app"]
-#addopts = "-vv -n auto --cov --cov-report xml --cov-report term-missing --cov-fail-under=100"
+addopts = "-vv"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_mode = "auto"
 testpaths = ["app/tests"]
@@ -119,6 +119,7 @@ exclude = [
     "site-packages",
     "venv",
     "__init__.py",
+    "alembic/*",
 ]
 
 # Same as Black.
@@ -166,6 +167,12 @@ ignore = [
     "COM812",  # Missing trailing comma
     "N818",
     "ANN003",
+    "ERA001",  # Found commented-out code
+    "S105",  # Possible hardcoded password assigned
+    "ARG001",  # Unused function argument
+    "S106",  # Possible hardcoded password assigned to argument
+    "ARG003",  # Unused class method argument
+    "UP043",  # Unnecessary default type arguments - Generator[httpx.Request, httpx.Response, None]
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

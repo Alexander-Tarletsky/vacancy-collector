@@ -8,10 +8,9 @@ from schemas.user import UserResponse
 
 router = APIRouter()
 
+
 @router.get("/me", response_model=Response)
-async def get_current_user(
-        user: Annotated[UserResponse, Depends(current_user)]
-) -> Response:
+async def get_current_user(user: Annotated[UserResponse, Depends(current_user)]) -> Response:
     user_response = UserResponse.model_validate(user)
     return Response(
         status_code=200,

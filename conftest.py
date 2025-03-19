@@ -5,13 +5,13 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-# Check if the test mode is enabled and the test database name prefix is set
-if not settings.TEST_MODE or not settings.TEST_DB_NAME_PREFIX:
+# Check if the test mode is enabled and the test database URL is set
+if not settings.TEST_MODE or not settings.TEST_DATABASE_URI:
     raise ValueError(
-        "Before running tests, you must set TEST_MODE and TEST_DB_NAME_PREFIX in settings"
+        "Before running tests, you must set TEST_MODE and TEST_DATABASE_URI in settings."
     )
 
-logger.info(f"Connected to database: {settings.DATABASE_URI}")
+logger.info(f"Connected to database: {settings.TEST_DATABASE_URI}")
 
 # We can also create a custom event loop fixture to override the default
 # event loop (scope="session"), but this approach has aged out.

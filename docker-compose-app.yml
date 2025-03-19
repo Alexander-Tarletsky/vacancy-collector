@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:16-alpine
-    container_name: pgsql_db
+    container_name: tvc_pgsql_db
     restart: always
     env_file: .env
     environment:
@@ -17,7 +17,7 @@ services:
 
   app:
     build: .
-    container_name: fastapi_app
+    container_name: tvc_app
     restart: always
     depends_on:
       - db
@@ -29,4 +29,4 @@ services:
     command: ["/wait", "--timeout=30", "--", "poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 volumes:
-  postgres_data:
+  postgres_data: {}

@@ -43,10 +43,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
     async def get_multi(
-            self,
-            db_session: AsyncSession,
-            offset: int = 0,
-            limit: int = 1000,
+        self,
+        db_session: AsyncSession,
+        offset: int = 0,
+        limit: int = 1000,
     ) -> Sequence[ModelType]:
         """
         Retrieve multiple records with optional offset and limit.
@@ -77,11 +77,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_obj
 
     async def update(
-            self,
-            db_session: AsyncSession,
-            *,
-            db_obj: ModelType,
-            obj_in: UpdateSchemaType | dict[str, Any]
+        self,
+        db_session: AsyncSession,
+        *,
+        db_obj: ModelType,
+        obj_in: UpdateSchemaType | dict[str, Any],
     ) -> ModelType:
         """
         Update an existing record.

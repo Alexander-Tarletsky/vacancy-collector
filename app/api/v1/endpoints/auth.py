@@ -17,8 +17,8 @@ router = APIRouter()
 
 @router.post("/register", response_model=Response, status_code=201)
 async def register(
-        user_data: UserCreate,
-        db_session: Annotated[AsyncSession, Depends(get_session)],
+    user_data: UserCreate,
+    db_session: Annotated[AsyncSession, Depends(get_session)],
 ) -> Response:
     """
     Register a new user.
@@ -37,8 +37,7 @@ async def register(
 
     # Create a new user
     new_user = await user_crud.create(
-        db_session,
-        obj_in=user_data.model_copy(update={"password": hashed_password})
+        db_session, obj_in=user_data.model_copy(update={"password": hashed_password})
     )
 
     # Serialize the user data
@@ -73,11 +72,7 @@ async def login(
 
     access_token = Token(
         access_token=create_access_token(data={"sub": user.email}),
-        token_type="Bearer"  # NOQA: S106
+        token_type="Bearer",  # NOQA: S106
     ).model_dump()
 
-    return Response(
-        status_code=200,
-        message="Successfully logged in",
-        data=access_token
-    )
+    return Response(status_code=200, message="Successfully logged in", data=access_token)

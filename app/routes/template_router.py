@@ -25,30 +25,30 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @template_router.get("/login", include_in_schema=False)
-async def login_form(request: Request):
+async def login_form(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("auth/login.html", {"request": request})
 
 
 @template_router.get("/register", include_in_schema=False)
-async def register_form(request: Request):
+async def register_form(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("auth/register.html", {"request": request})
 
 
 @template_router.get("/channels")
-async def channels_list(request: Request):
+async def channels_list(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("main/channels/list.html", {"request": request})
 
 
 @template_router.get("/channels/{id}")
-async def channel_detail(id: UUID, request: Request):
+async def channel_detail(id: UUID, request: Request) -> HTMLResponse:
     return templates.TemplateResponse("main/channels/detail.html", {"request": request})
 
 
 @template_router.get("/vacancies")
-async def vacancies_list(request: Request):
+async def vacancies_list(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("main/vacancies/list.html", {"request": request})
 
 
 @template_router.get("/vacancies/{id}")
-async def vacancy_detail(id: UUID, request: Request):
+async def vacancy_detail(id: UUID, request: Request) -> HTMLResponse:
     return templates.TemplateResponse("main/vacancies/detail.html", {"request": request})
