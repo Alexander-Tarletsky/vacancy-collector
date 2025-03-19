@@ -68,6 +68,7 @@ class AsyncClientFactory:
         self.app = main_app
         self.base_url = base_url
 
+    # TODO: I'm not sure about this method, but it works
     async def __call__(self, email: str | None = None, password: str | None = None) -> AsyncClient:
         """
         Creates a httpx.AsyncClient with authentication support.
