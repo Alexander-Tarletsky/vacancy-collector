@@ -19,11 +19,13 @@ from core.config import settings
 from core.security import hash_password
 from crud.channel import channel_crud
 from crud.user import user_crud
+from crud.vacancy import vacancy_crud
 from db import Base
 from db.connect import get_session
 from main import app
 from schemas.channel import ChannelResponse, ChannelCreate
 from schemas.user import UserResponse, UserCreate
+from schemas.vacancy import VacancyCreate, VacancyResponse
 from tests import utils
 
 logger = logging.getLogger(__name__)
@@ -113,7 +115,7 @@ async def session(
 @pytest_asyncio.fixture()
 async def client(
     connection: AsyncConnection,
-    transaction: AsyncTransaction,
+    transaction: AsyncTransaction,  # NOQA: ARG001
 ) -> AsyncGenerator[utils.AsyncClientFactory, Any]:
     """
     This is a factory for creating an HTTP AsyncClient class for testing the API.
@@ -145,6 +147,17 @@ async def client(
 def fake() -> Faker:
     fake = Faker()
     return fake
+
+
+@pytest_asyncio.fixture(scope="package")
+async def get_test_user_data(fake: Faker) -> dict:
+    return UserCreate(
+        email=fake.email(safe=True, domain="example.com"),
+        password="secret",
+        first_name="Test User",
+        api_id="api_id",
+        api_hash="api_hash",
+    ).model_dump()
 
 
 @pytest_asyncio.fixture()
@@ -204,15 +217,36 @@ async def channel_factory(
     return create_channel
 
 
-@pytest_asyncio.fixture(scope="package")
-async def get_test_user_data(fake: Faker) -> dict:
-    return UserCreate(
-        email=fake.email(safe=True, domain="example.com"),
-        password="secret",
-        first_name="Test User",
-        api_id="api_id",
-        api_hash="api_hash",
-    ).model_dump()
+@pytest_asyncio.fixture()
+async def vacancy_factory(
+    session: AsyncSession,
+    user_factory: Callable,
+    channel_factory: Callable,
+    fake: Faker,
+) -> Callable:
+    async def create_vacancy(
+        user: UserResponse | None = None,
+        channel: ChannelResponse | None = None
+    ) -> dict:
+        """
+        This fixture is used to create a vacancy in the database.
+        """
+        channel = channel or await channel_factory(user=user or await user_factory())
+
+        new_vacancy = await vacancy_crud.create(
+            session,
+            obj_in=VacancyCreate(
+                message_id=str(uuid.uuid4()),
+                content=fake.text(),
+                contact=fake.email(),
+                channel_id=channel['id'],
+            ),
+        )
+
+        vacancy_response = VacancyResponse.model_validate(new_vacancy)
+        return vacancy_response.model_dump()
+
+    return create_vacancy
 
 
 # TODO: Remove this code after end of the test

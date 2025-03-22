@@ -27,7 +27,6 @@ class CRUDChannel(CRUDBase[ChannelORM, ChannelCreate, ChannelUpdate]):
         """
         result = await db_session.execute(
             select(self.model)
-            # .join(self.model.user)
             .where(self.model.user_id == user.id)
             .offset(offset)
             .limit(limit)

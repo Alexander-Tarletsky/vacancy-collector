@@ -2,12 +2,12 @@ from collections.abc import Sequence
 from typing import Any, Generic, TypeVar
 from uuid import UUID
 
-from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import Mapped
 
+from core.exceptions import ResourceNotFoundException
 from db.base_model import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -39,7 +39,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """Returns the object if found, otherwise raises HTTPException(404)."""
         obj = await self.get(db_session, obj_id)
         if not obj:
-            raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found")
+            raise ResourceNotFoundException(msg=f"{self.model.__name__} with id {obj_id} not found")
         return obj
 
     async def get_multi(

@@ -5,9 +5,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class VacancyBase(BaseModel):
-    message_id: str = Field(description="Telegram message ID")
-    content: str | None
-    contact: str | None
+    content: str
+    contact: str | None = Field(default=None)
     is_viewed: bool = Field(default=False)
     is_opportunity: bool = Field(default=False)
     is_applied: bool = Field(default=False)
@@ -15,15 +14,17 @@ class VacancyBase(BaseModel):
 
 
 class VacancyCreate(VacancyBase):
+    message_id: str = Field(description="Telegram message ID")
     channel_id: UUID
 
 
-class VacancyUpdate(BaseModel):
-    is_viewed: bool | None
+class VacancyUpdate(VacancyBase):
+    content: str | None = Field(default=None)
 
 
 class VacancyResponse(VacancyBase):
     id: UUID
+    message_id: str
     created_at: datetime
     updated_at: datetime
     channel_id: UUID
