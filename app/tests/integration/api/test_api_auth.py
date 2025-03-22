@@ -1,7 +1,6 @@
 from collections.abc import Callable
 
 import pytest
-from httpx import AsyncClient
 
 from core.config import settings
 from schemas.user import UserCreate
@@ -61,7 +60,7 @@ async def test_login_success(client: Callable, user_factory: Callable) -> None:
     assert token_data["token_type"] == "Bearer"
 
 
-async def test_login_fail(client: AsyncClient, user_factory: Callable) -> None:
+async def test_login_fail(client: Callable, user_factory: Callable) -> None:
     await user_factory(email="login@example.com", password="secret")
     form_data = {"username": "nonexistent@example.com", "password": "wrongpassword"}
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
