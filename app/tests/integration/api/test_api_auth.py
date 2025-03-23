@@ -1,8 +1,6 @@
 from collections.abc import Callable
 
 import pytest
-from faker import Faker
-from httpx import AsyncClient
 
 from core.config import settings
 from schemas.user import UserCreate
@@ -13,7 +11,7 @@ pytestmark = pytest.mark.asyncio(loop_scope="session")
 TEST_PATH = f"{settings.API_V1_STR}/auth"
 
 
-async def test_register_success(client: Callable, fake: Faker, get_test_user_data: dict) -> None:
+async def test_register_success(client: Callable, get_test_user_data: dict) -> None:
     user = get_test_user_data
 
     async with await client() as auth_cl:
@@ -42,7 +40,7 @@ async def test_register_duplicate(client: Callable, user_factory: Callable) -> N
 
     assert response.status_code == 400, response.text
     json_data = response.json()
-    assert json_data["detail"] == "User with this email already exists"
+    assert json_data["detail"] == "User with this email already exists."
 
 
 async def test_login_success(client: Callable, user_factory: Callable) -> None:
@@ -62,7 +60,7 @@ async def test_login_success(client: Callable, user_factory: Callable) -> None:
     assert token_data["token_type"] == "Bearer"
 
 
-async def test_login_fail(client: AsyncClient, user_factory: Callable) -> None:
+async def test_login_fail(client: Callable, user_factory: Callable) -> None:
     await user_factory(email="login@example.com", password="secret")
     form_data = {"username": "nonexistent@example.com", "password": "wrongpassword"}
     headers = {"Content-Type": "application/x-www-form-urlencoded"}

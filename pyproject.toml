@@ -169,9 +169,9 @@ ignore = [
     "ANN003",
     "ERA001",  # Found commented-out code
     "S105",  # Possible hardcoded password assigned
-    "ARG001",  # Unused function argument
+#    "ARG001",  # Unused function argument
     "S106",  # Possible hardcoded password assigned to argument
-    "ARG003",  # Unused class method argument
+#    "ARG003",  # Unused class method argument
     "UP043",  # Unnecessary default type arguments - Generator[httpx.Request, httpx.Response, None]
 ]
 

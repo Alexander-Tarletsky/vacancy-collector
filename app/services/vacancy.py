@@ -25,19 +25,21 @@ class VacancyService:
         user: UserORM,
         channel_id: UUID,
     ) -> list[VacancyResponse]:
-        vacancies = await vacancy_crud.get_channel_vacancies(db_session, channel_id=channel_id)
+        vacancies = await vacancy_crud.get_channel_vacancies(
+            db_session,
+            user=user,
+            channel_id=channel_id,
+        )
         return [VacancyResponse.model_validate(vacancy) for vacancy in vacancies]
 
     @classmethod
     async def get_by_id(
         cls,
         db_session: AsyncSession,
-        user: UserORM,
+        user: UserORM,  # NOQA: ARG003
         vacancy_id: UUID,
     ) -> VacancyResponse:
         vacancy = await vacancy_crud.get_or_404(db_session, obj_id=vacancy_id)
-        if vacancy.channel.user_id != user.id:
-            raise AccessForbiddenException
         return VacancyResponse.model_validate(vacancy)
 
     @classmethod
@@ -46,8 +48,13 @@ class VacancyService:
         db_session: AsyncSession,
         user: UserORM,
         vacancy_data: VacancyCreate,
-        channel_id: UUID,
+        channel_id: UUID | None = None,
     ) -> VacancyResponse:
+        # Check permission to access the channel
+        channel_id = channel_id or vacancy_data.channel_id
+        if channel_id not in [channel.id for channel in user.channels]:
+            raise AccessForbiddenException
+
         new_vacancy = await vacancy_crud.create(db_session, obj_in=vacancy_data)
         return VacancyResponse.model_validate(new_vacancy)
 
@@ -55,11 +62,14 @@ class VacancyService:
     async def update_user_vacancy(
         cls,
         db_session: AsyncSession,
+        *,
         user: UserORM,
         vacancy_id: UUID,
         vacancy_data: VacancyUpdate,
     ) -> VacancyResponse:
         vacancy = await vacancy_crud.get_or_404(db_session, obj_id=vacancy_id)
+
+        # Check permission to access the vacancy
         if vacancy.channel.user_id != user.id:
             raise AccessForbiddenException
 
@@ -74,6 +84,8 @@ class VacancyService:
         vacancy_id: UUID,
     ) -> UUID:
         vacancy = await vacancy_crud.get_or_404(db_session, obj_id=vacancy_id)
+
+        # Check permission to access the vacancy
         if vacancy.channel.user_id != user.id:
             raise AccessForbiddenException
 
