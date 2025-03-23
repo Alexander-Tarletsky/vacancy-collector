@@ -41,7 +41,13 @@ async def channels_list(request: Request) -> HTMLResponse:
 
 @template_router.get("/channels/{id}")
 async def channel_detail(id: UUID, request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("main/channels/detail.html", {"request": request})
+    return templates.TemplateResponse(
+        "main/channels/detail.html",
+        {
+            "request": request,
+            "channel_id": id,
+        },
+    )
 
 
 @template_router.get("/vacancies")
@@ -51,4 +57,10 @@ async def vacancies_list(request: Request) -> HTMLResponse:
 
 @template_router.get("/vacancies/{id}")
 async def vacancy_detail(id: UUID, request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("main/vacancies/detail.html", {"request": request})
+    return templates.TemplateResponse(
+        "main/vacancies/detail.html",
+        {
+            "request": request,
+            "vacancy_id": id,
+        },
+    )

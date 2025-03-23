@@ -145,3 +145,43 @@ async def test_delete_channel(
     channels = res.all()
 
     assert len(channels) == 0, "Channel not deleted from the database"
+
+
+async def test_get_non_user_channel(
+    client: Callable,
+    user_factory: Callable,
+    channel_factory: Callable,
+    fake: Faker,
+) -> None:
+    email = fake.email(safe=True, domain="example.com")
+    password = fake.password(length=8)
+    await user_factory(email=email, password=password)
+
+    new_user = await user_factory(email=fake.email(), password=fake.password(length=8))
+    channel = await channel_factory(user=new_user)
+
+    # Attempt to access the channel with a different user
+    async with await client(email, password) as auth_cl:
+        response = await auth_cl.get(f"{TEST_PATH}/{channel['id']}")
+
+    assert response.status_code == 403, response.text
+    res_data = response.json()
+    assert res_data["detail"] == "Access forbidden. You do not have access to this resource."
+
+
+async def test_get_defunct_channel(
+    client: Callable,
+    user_factory: Callable,
+    channel_factory: Callable,
+    fake: Faker,
+) -> None:
+    email = fake.email(safe=True, domain="example.com")
+    password = fake.password(length=8)
+    user = await user_factory(email=email, password=password)
+    await channel_factory(user=user)
+
+    # Attempt to access a non-existent channel
+    async with await client(email, password) as auth_cl:
+        response = await auth_cl.get(f"{TEST_PATH}/{fake.uuid4()}")
+
+    assert response.status_code == 404, response.text
