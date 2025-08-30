@@ -29,10 +29,9 @@ async def test_register_duplicate(client: Callable, user_factory: Callable) -> N
 
     # Attempt to register the same user again
     user = UserCreate(
+        phone="1234567890",
         email=email,
         password="secret",
-        api_id="api_id",
-        api_hash="api_hash",
     ).model_dump()
 
     async with await client() as auth_cl:

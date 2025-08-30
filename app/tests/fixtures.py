@@ -1,12 +1,11 @@
 import logging
 import uuid
-from collections.abc import AsyncGenerator, Callable
-from typing import Any
+from collections.abc import AsyncGenerator
+from typing import Any, Callable, Coroutine
 
 import pytest
 import pytest_asyncio
 from faker import Faker
-from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     AsyncConnection,
@@ -152,11 +151,10 @@ def fake() -> Faker:
 @pytest_asyncio.fixture(scope="package")
 async def get_test_user_data(fake: Faker) -> dict:
     return UserCreate(
+        phone=fake.phone_number(),
         email=fake.email(safe=True, domain="example.com"),
         password="secret",
         first_name="Test User",
-        api_id="api_id",
-        api_hash="api_hash",
     ).model_dump()
 
 
@@ -164,12 +162,11 @@ async def get_test_user_data(fake: Faker) -> dict:
 async def user_factory(
     session: AsyncSession,
     fake: Faker,
-) -> Callable:
+) -> Callable[[str | None, str | None, str | None], Coroutine[Any, Any, UserResponse | dict | None]]:  # NOQA
     async def create_user(
-        email: EmailStr | None = None,
+        phone: str | None = None,
+        email: str | None = None,
         password: str | None = "password",  # NOQA: S107
-        api_id: str | None = "api_id",
-        api_hash: str | None = "api_hash",
     ) -> UserResponse | dict | None:
         """
         This fixture is used to create a user in the database.
@@ -178,10 +175,9 @@ async def user_factory(
         new_user = await user_crud.create(
             session,
             obj_in=UserCreate(
+                phone=phone or fake.phone_number(),
                 email=email or fake.email(safe=True, domain="example.com"),
                 password=hashed_password,
-                api_id=api_id,
-                api_hash=api_hash,
             ),
         )
         user_response = UserResponse.model_validate(new_user)

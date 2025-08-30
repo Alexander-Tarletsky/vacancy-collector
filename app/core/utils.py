@@ -1,5 +1,5 @@
+from asyncio import Lock
 from pathlib import Path
-from threading import Lock
 
 from db.connect import async_engine
 
@@ -17,9 +17,9 @@ async def is_template_exists(template_folder: str, template_name: str) -> bool:
     return False
 
 
-class MetaSingleton(type):
+class SingletonMeta(type):
     """
-    There is a thread-safe implementation of Singleton.
+    There is a thread-safe implementation of Singleton Metaclass.
     """
 
     _instances = {}

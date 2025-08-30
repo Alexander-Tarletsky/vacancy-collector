@@ -11,7 +11,7 @@ class BaseHTTPException(HTTPException):
         super().__init__(status_code=status_code, detail=detail, **kwargs)
 
 
-class AuthException(BaseHTTPException):
+class AuthException(HTTPException):
     def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -20,7 +20,7 @@ class AuthException(BaseHTTPException):
         )
 
 
-class UserAlreadyExistsException(BaseHTTPException):
+class UserAlreadyExistsException(HTTPException):
     def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -28,7 +28,7 @@ class UserAlreadyExistsException(BaseHTTPException):
         )
 
 
-class UserNotFoundException(BaseHTTPException):
+class UserNotFoundException(HTTPException):
     def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -36,7 +36,7 @@ class UserNotFoundException(BaseHTTPException):
         )
 
 
-class ResourceNotFoundException(BaseHTTPException):
+class ResourceNotFoundException(HTTPException):
     def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -44,7 +44,7 @@ class ResourceNotFoundException(BaseHTTPException):
         )
 
 
-class InactiveUserException(BaseHTTPException):
+class InactiveUserException(HTTPException):
     def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -53,7 +53,7 @@ class InactiveUserException(BaseHTTPException):
         )
 
 
-class UnconfirmedUserException(BaseHTTPException):
+class UnconfirmedUserException(HTTPException):
     def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -62,7 +62,7 @@ class UnconfirmedUserException(BaseHTTPException):
         )
 
 
-class AccessForbiddenException(BaseHTTPException):
+class AccessForbiddenException(HTTPException):
     def __init__(self, msg: str | None = None) -> None:
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,

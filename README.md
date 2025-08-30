@@ -2,15 +2,6 @@
 
 [![Build Status](https://github.com/Alexander-Tarletsky/vacancy-collector/actions/workflows/dev_branch.yml/badge.svg)](https://github.com/Alexander-Tarletsky/vacancy-collector/actions/workflows/dev_branch.yml)
 
-I have a `init.sql` file in the root of the project. The file looks like this:
-```
-CREATE DATABASE test_db;
-```
-I have a `init.sh` file in the root of the project. The file looks like this:
-```
-#!/bin/bash
-psql -U $POSTGRES_USER -d $POSTGRES_DB -a -f /docker-entrypoint-initdb.d/init.sql
-```
 
 Local Testing with Docker Compose
 For local testing, you can launch the test database container by passing environment variables directly from the command line. This approach allows you to override settings without relying on a .env file. In your terminal, run:

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Type
 from uuid import UUID, uuid4
 
 from sqlalchemy import BIGINT, String, DateTime, Uuid
@@ -9,11 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
-str_20 = Annotated[str, 20]
-str_100 = Annotated[str, 100]
-str_200 = Annotated[str, 200]
-str_1000 = Annotated[str, 1000]
+str_20: Type[str] = Annotated[str, 20]
+str_100: Type[str] = Annotated[str, 100]
+str_200: Type[str] = Annotated[str, 200]
+str_1000: Type[str] = Annotated[str, 1000]
 type Varchar = str
+# Coordinates: TypeAlias = list[tuple[float, float]]
 
 
 class Base(AsyncAttrs, DeclarativeBase):

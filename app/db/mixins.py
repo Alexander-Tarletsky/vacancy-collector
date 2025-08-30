@@ -12,6 +12,7 @@ class UserRelationMixin:
     _user_id_unique: bool | None = None
     _user_id_nullable: bool = False
     _user_back_populates: str | None = None
+    _one_to_one_relation: bool = False  # Uses as value for `single_parent` in relationship
 
     @declared_attr
     def user_id(cls) -> Mapped[UUID]:  # NOQA: N805
@@ -26,4 +27,5 @@ class UserRelationMixin:
         return relationship(
             "UserORM",
             back_populates=cls._user_back_populates,
+            single_parent=cls._one_to_one_relation,
         )

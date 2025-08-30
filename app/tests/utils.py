@@ -68,10 +68,13 @@ class AsyncClientFactory:
         self.app = main_app
         self.base_url = base_url
 
-    # TODO: I'm not sure about this method, but it works
+    # TODO: I'm not sure about overloading the `__call__` method as asynchronous,
+    #  but for now it works. We could change it later if it will needed.
     async def __call__(self, email: str | None = None, password: str | None = None) -> AsyncClient:
         """
-        Creates a httpx.AsyncClient with authentication support.
+        It makes AsyncClientFactory instance callable, so we can use it as a factory for creating
+        httpx.AsyncClient instances. It allows us to pass credentials during the creation of
+        the client instance and then use it as authenticated client.
 
         Args:
             email (str | None): The email address for authentication.

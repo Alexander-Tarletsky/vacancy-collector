@@ -3,20 +3,24 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from schemas.channel import ChannelResponse
+from schemas.connection import TelegramConnectionResponse
+
 
 class UserBase(BaseModel):
     first_name: str | None = Field(default=None)
     last_name: str | None = Field(default=None)
+    phone: str | None = Field(default=None)
     email: EmailStr | None
-    api_id: str | None
-    api_hash: str | None
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
     is_confirmed: bool = Field(default=True)
 
 
-class UserSignUp(UserBase):
-    password: str  # TODO: token!
+# class UserSignUp(UserBase):
+#     phone: str
+#     email: EmailStr
+#     password: str
 
 
 class UserSignIn(BaseModel):
@@ -25,10 +29,9 @@ class UserSignIn(BaseModel):
 
 
 class UserCreate(UserBase):
+    phone: str
     email: EmailStr
     password: str
-    api_id: str
-    api_hash: str
 
 
 class UserUpdate(UserBase):
@@ -42,6 +45,9 @@ class UserUpdatePassword(UserBase):
 # Properties to return via API
 class UserResponse(UserBase):
     id: UUID
+    channels: list[ChannelResponse] | None = Field(default=None)
+    telegram_connection_id: UUID | None = Field(default=None)
+    telegram_connection: TelegramConnectionResponse | None = Field(default=None)
     created_at: datetime
     updated_at: datetime
 

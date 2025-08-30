@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from db.base_model import Base, str_100, Varchar, str_1000, str_200
+from db.base_model import Base, str_100, str_1000, Varchar
 from db.mixins import UserRelationMixin
 
 
@@ -12,10 +12,9 @@ class UserORM(Base):
 
     first_name: Mapped[str_100 | None]
     last_name: Mapped[str_100 | None]
+    phone: Mapped[str_100] = mapped_column(unique=True)
     email: Mapped[str_100] = mapped_column(unique=True)
     password: Mapped[str_1000]
-    api_id: Mapped[str_200]
-    api_hash: Mapped[str_1000]
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
     is_confirmed: Mapped[bool] = mapped_column(default=False)
@@ -23,6 +22,15 @@ class UserORM(Base):
     # One-to-many relationship with Channel
     channels: Mapped[list["ChannelORM"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
+    )
+
+    # One-to-one relationship with TelegramConnection
+    telegram_connection_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("telegram_connections.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+    telegram_connection: Mapped["TelegramConnectionORM" | None] = relationship(
+        back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="selectin"
     )
 
     def __str__(self) -> str:
@@ -34,8 +42,9 @@ class UserORM(Base):
 
 class ChannelORM(UserRelationMixin, Base):
     __tablename__ = "channels"
+
     _user_back_populates = "channels"  # From UserRelationMixin
-    # Relationship with User was defined in UserRelationMixin
+    # Relationship with User (user_id, user) is defined in UserRelationMixin
 
     title: Mapped[str_100]
     description: Mapped[str_1000 | None]
@@ -68,6 +77,24 @@ class VacancyORM(Base):
     # Relationship with Channel
     channel_id: Mapped[UUID] = mapped_column(ForeignKey("channels.id", ondelete="CASCADE"))
     channel: Mapped[ChannelORM] = relationship(back_populates="vacancies")
+
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}({self.id})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+class TelegramConnectionORM(UserRelationMixin, Base):
+    __tablename__ = "telegram_connections"
+
+    _user_id_unique = True
+    _one_to_one_relation = True
+    _user_back_populates = "telegram_connection"
+    # Relationship with User (user_id, user) is defined in UserRelationMixin
+
+    is_active: Mapped[bool] = mapped_column(default=True)
+    session_data: Mapped[str] = mapped_column(default="")
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.id})"

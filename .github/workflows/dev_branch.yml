@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - development
+      - main
 
 env:
   TEST_DB_HOST: 127.0.0.1
